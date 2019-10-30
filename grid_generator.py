@@ -28,7 +28,6 @@ def saveFrame(img, outfile):
 
 def showFrame(img, delay=20):
     import cv2
-    img[img==1] = 255
     cv2.imshow('FRAME', img)
     cv2.waitKey(delay)
     return
@@ -46,7 +45,8 @@ def create_pattern(W, H, nBright, gap, fixed=[]):
     brightIndices = fixed[:]
     status = True
     R, C = np.arange(img.shape[0]), np.arange(img.shape[1])
-    assert gap
+    if not gap:
+        gap = -1
     nIter = 0
     while len(brightIndices) < nBright:
         x, y = random.choice(R), random.choice(C)
@@ -93,7 +93,7 @@ def main(**kwargs):
     allpats = []
     nIter = 0
     fixed = generateFixedBrightPixels(nFixedBright, gap, W, H)
-    while len(allpats) <= kwargs['num_patterns']:
+    while len(allpats) < kwargs['num_patterns']:
         img, success = create_pattern(W, H, nBright, gap, fixed)
         if success:
             #  saveFrame(img, outdir/f'f{nIter:05d}.png')
@@ -107,8 +107,32 @@ def main(**kwargs):
     outfile = kwargs['outfile']
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
         for frame in allpats:
+            frame[frame==1] = 255
             tif.save(np.uint8(frame))
     print( f"[INFO ] Saved to {outfile}" )
+
+    # Generate a figure for statistics.
+    plt.figure(figsize=(8, 3))
+    ax1 = plt.subplot(121)
+    ax1.set_title('AVG: mean of all frames')
+    avg = np.mean(allpats, axis=0)
+
+    toPlot = avg.copy()
+    toPlot[toPlot==0] = np.nan
+    im = ax1.imshow(toPlot, aspect='auto', interpolation='none'
+            , vmax=np.mean(avg)+2*np.std(avg)
+            , cmap='rainbow'
+            )
+    plt.colorbar(im, ax=ax1)
+
+    ax2 = plt.subplot(122)
+    ax2.hist(np.ravel(avg), bins=20)
+    ax2.set_xlabel('pixel values in AVG mat')
+
+    coverage = 100*(1-len(np.where(avg == 0)[0])/W/H)
+    plt.suptitle(f'Coverage percentage {coverage:.1f}%, N={len(allpats)}')
+    plt.tight_layout(rect=(0, 0, 1, 0.95))
+    plt.savefig(f'{outfile}.png')
 
 if __name__ == '__main__':
     import argparse
@@ -137,7 +161,8 @@ if __name__ == '__main__':
              )
     parser.add_argument('--gap', '-g'
              , required = False, type=int, default=2
-             , help = 'Gap between nearest bright neighbours'
+             , help = 'Gap between nearest bright neighbours. <=0 removes '
+                      ' restriction.'
              )
     parser.add_argument('--num-patterns', '-N'
              , required = False, default = 10, type=int
