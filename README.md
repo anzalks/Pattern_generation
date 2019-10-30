@@ -8,16 +8,20 @@ equivalent).
 1. sudo apt install imagemagick
 2. pip3 install -r requirements.txt --user
 
-## Run
+## Pipeline
 
 To run the pipeline, a `Makefile` is provided. Running is as easy as
 
 ```bash
 $ make 
 ```
-To change the parameters, open the `Makefile` in editor such as gEdit.
+To change the parameters, open the `Makefile` in editor such as gEdit. Once it
+is compete, a TIFF file (default `results.tiff`) will be generated in the
+current working directory.
 
-## Paramters
+To generate PNG files from it, run `make pngs` in terminal.
+
+## Parameters
 
 To see the options available, run the following command in terminal.
 
