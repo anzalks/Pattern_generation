@@ -1,4 +1,4 @@
-# Pattern_generation
+# Pattern Generation
 
 ## Dependencies
 
