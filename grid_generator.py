@@ -104,12 +104,6 @@ def main(**kwargs):
             print( f"[WARN ] Too many iteration. Giving up." )
             break
 
-    outfile = kwargs['outfile']
-    with tifffile.TiffWriter(outfile, imagej=True) as tif:
-        for frame in allpats:
-            frame[frame==1] = 255
-            tif.save(np.uint8(frame))
-    print( f"[INFO ] Saved to {outfile}" )
 
     # Generate a figure for statistics.
     plt.figure(figsize=(8, 3))
@@ -126,13 +120,22 @@ def main(**kwargs):
     plt.colorbar(im, ax=ax1)
 
     ax2 = plt.subplot(122)
-    ax2.hist(np.ravel(avg), bins=20)
+    ax2.hist(np.ravel(avg), bins=np.linspace(0, 1.0, 2*len(allpats)))
     ax2.set_xlabel('pixel values in AVG mat')
 
     coverage = 100*(1-len(np.where(avg == 0)[0])/W/H)
     plt.suptitle(f'Coverage percentage {coverage:.1f}%, N={len(allpats)}')
     plt.tight_layout(rect=(0, 0, 1, 0.95))
+
+    outfile = kwargs['outfile']
     plt.savefig(f'{outfile}.png')
+
+    # final save
+    with tifffile.TiffWriter(outfile, imagej=True) as tif:
+        for frame in allpats:
+            frame[frame==1] = 255
+            tif.save(np.uint8(frame))
+    print( f"[INFO ] Saved to {outfile}" )
 
 if __name__ == '__main__':
     import argparse

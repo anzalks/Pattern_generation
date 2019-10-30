@@ -1,9 +1,11 @@
 OUTFILE =  results.tiff
 
-all : ./grid_generator.py
+all : $(OUTFILE)
+
+$(OUTFILE) : ./grid_generator.py
 	rm -rf ./frames/*
-	python3 $< -N 100 -H 10 -W 10 --num-brights 10 --num-fixed-brights 1 \
-	    --gap 1 \
+	python3 $< -N 500 -H 29 -W 29 --num-brights 10 --num-fixed-brights 2 \
+	    --gap 3 \
 	    -o $(OUTFILE)
 
 install :
@@ -13,3 +15,6 @@ pngs: $(OUTFILE)
 	rm -rf frames
 	mkdir -p frames
 	convert $< frames/f%04d.png
+
+gif : $(OUTFILE)
+	convert $< -resize 100x100 $(OUTFILE).gif
