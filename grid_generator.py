@@ -97,7 +97,7 @@ def main(**kwargs):
         img, success = create_pattern(W, H, nBright, gap, fixed)
         if success:
             #  saveFrame(img, outdir/f'f{nIter:05d}.png')
-            showFrame(img)
+            showFrame(img, 10)
             allpats.append(img)
             nIter += 1
         if nIter > 10 * kwargs['num_patterns']:
