@@ -14,7 +14,10 @@ install :
 pngs: $(OUTFILE)
 	rm -rf frames
 	mkdir -p frames
-	convert $< frames/f%04d.png
+	# See here http://www.imagemagick.org/script/command-line-options.php?#resize
+	  convert \
+	  -filter box -resize 2000% \
+	  $< frames/f%04d.png
 
 gif : $(OUTFILE)
 	convert $< -resize 100x100 $(OUTFILE).gif
