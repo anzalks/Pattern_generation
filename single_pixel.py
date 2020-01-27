@@ -8,25 +8,64 @@ import os
 import random
 import matplotlib.pyplot as plt
 import itertools
+import tifffile
 import numpy as np
 
-def showFrame(mat, delay=500):
+H_, W_ = 11, 8
+res_ = np.zeros((H_,W_))
+
+
+def showFrame(mat, delay=1):
     import cv2
-    cv2.imshow('frame', mat)
+    global res_
+    res_ += mat
+    res = np.hstack((mat, res_))
+    cv2.imshow('window', cv2.resize(res, None, fx=5, fy=5))
     cv2.waitKey(delay)
 
-def main():
-    H, W = 5, 4
-    frames = []
-    for i, j in itertools.product(range(H), range(W)):
-        Z = np.zeros((H,W))
-        #  frames.append(X)
-        Z[i, j] = 1
-        frames.append(Z)
+def minDistance(f1, f2):
+    # Both frames are guaranteed to have only 1 pixel.
+    x1, y1 = np.argwhere(f1>0)[0]
+    x2, y2 = np.argwhere(f2>0)[0]
+    return ((x1-x2)**2 + (y1-y2)**2)**0.5
+    
 
-    random.shuffle(frames)
-    for f in frames:
-        showFrame(f)
+def main():
+    global res_, H_, W_
+    Z = np.zeros_like(res_)
+    i = random.randint(0, H_-1)
+    j = random.randint(0, W_-1)
+    Z[i,j] = 1
+    frames = [Z]
+    while True:
+        if res_.min() > 0:
+            print("Whole space is covered")
+            break
+        #  frames.append(X)
+        # For how many frames it should not overlap. Continue with 2.
+        Z = np.zeros_like(res_)
+        i = random.randint(0, H_-1)
+        j = random.randint(0, W_-1)
+        Z[i, j] = 1
+        badFrame = False
+        for f in frames[-30:-1]:
+            d = minDistance(f, Z)
+            if d < 2**0.5:
+                print('☠', end=''); sys.stdout.flush()
+                badFrame = True
+                break
+
+        if not badFrame:
+            frames.append(Z)
+            showFrame(Z, 1)
+
+    # Write them to a tiff file.
+    outfile = 'single_pixel.tiff'
+    with tifffile.TiffWriter(outfile, imagej=True) as tif:
+        for frame in frames:
+            frame[frame==1] = 255
+            tif.save(np.uint8(frame))
+    print( f"[INFO ] Saved to {outfile}" )
 
 
 if __name__ == '__main__':
