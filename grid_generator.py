@@ -113,7 +113,9 @@ def main(**kwargs):
 
     toPlot = avg.copy()
     toPlot[toPlot==0] = np.nan
-    im = ax1.imshow(toPlot, aspect='auto', interpolation='none'
+
+    im = ax1.imshow(toPlot, aspect='auto'
+            , interpolation='none'
             , vmax=np.mean(avg)+2*np.std(avg)
             , cmap='rainbow'
             )
