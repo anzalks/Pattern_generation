@@ -48,13 +48,14 @@ def main():
     random.shuffle(allowedIndex)
     i, j = allowedIndex.pop()
     frames_.append((i,j))
-    while allowedIndex:
+
+    iterWithoutChange = 0
+    while allowedIndex and iterWithoutChange < 500:
         i, j = random.choice(allowedIndex)
         badIndex = False
         for (x2,y2) in frames_[-constraintWindowSize_:]:
             d = minDistance((i, j), (x2,y2))
             if d < 2**0.5:
-                print('xx', i, j, allowedIndex)
                 print('☠', end=''); sys.stdout.flush()
                 badIndex = True
                 break
@@ -63,7 +64,9 @@ def main():
             frames_.append((i,j))
             allowedIndex.remove((i,j))
             showFrame((i,j))
-        print(len(allowedIndex))
+            iterWithoutChange = 0
+        else:
+            iterWithoutChange += 1
 
     # Write them to a tiff file.
     outfile = 'single_pixel.tiff'
