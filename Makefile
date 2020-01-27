@@ -18,3 +18,4 @@ pngs: $(OUTFILE)
 
 gif : $(OUTFILE)
 	convert $< -resize 100x100 $(OUTFILE).gif
+
