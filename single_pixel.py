@@ -13,13 +13,15 @@ import numpy as np
 
 H_, W_ = 11, 8
 res_ = np.zeros((H_,W_))
+frames_ = []
 
 
 def showFrame(mat, delay=1):
     import cv2
     global res_
     res_ += mat
-    res = np.hstack((mat, res_))
+    overlap = np.sum(frames_[-30:-1], axis=0)
+    res = np.hstack((mat, res_, overlap))
     cv2.imshow('window', cv2.resize(res, None, fx=5, fy=5))
     cv2.waitKey(delay)
 
@@ -31,24 +33,23 @@ def minDistance(f1, f2):
     
 
 def main():
-    global res_, H_, W_
+    global res_, H_, W_, frames_
     Z = np.zeros_like(res_)
     i = random.randint(0, H_-1)
     j = random.randint(0, W_-1)
     Z[i,j] = 1
-    frames = [Z]
+    frames_ = [Z]
     while True:
         if res_.min() > 0:
             print("Whole space is covered")
             break
-        #  frames.append(X)
         # For how many frames it should not overlap. Continue with 2.
         Z = np.zeros_like(res_)
         i = random.randint(0, H_-1)
         j = random.randint(0, W_-1)
         Z[i, j] = 1
         badFrame = False
-        for f in frames[-30:-1]:
+        for f in frames_[-30:-1]:
             d = minDistance(f, Z)
             if d < 2**0.5:
                 print('☠', end=''); sys.stdout.flush()
@@ -56,13 +57,13 @@ def main():
                 break
 
         if not badFrame:
-            frames.append(Z)
+            frames_.append(Z)
             showFrame(Z, 1)
 
     # Write them to a tiff file.
     outfile = 'single_pixel.tiff'
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
-        for frame in frames:
+        for frame in frames_:
             frame[frame==1] = 255
             tif.save(np.uint8(frame))
     print( f"[INFO ] Saved to {outfile}" )
