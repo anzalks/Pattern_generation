@@ -8,6 +8,7 @@ import os
 import random
 import matplotlib.pyplot as plt
 import itertools
+import imageio
 from pathlib import Path
 import tifffile
 import numpy as np
@@ -31,10 +32,11 @@ def showFrame(pixel, i, delay=1):
     for f in frames_[-constraintWindowSize_:]:
         extra[f] = 1
     res = np.hstack((mat, summary_, extra))
-    final = cv2.resize(res, None, fx=5, fy=5, interpolation=cv2.INTER_CUBIC)
-    cv2.imshow('window', final)
-    cv2.imwrite(tempDir_ / f'{i:04d}.png', final)
+    #final = cv2.resize(res, None, fx=5, fy=5,
+    #    interpolation=cv2.INTER_CUBIC)
+    cv2.imshow('window', res)
     cv2.waitKey(delay)
+    imageio.imwrite(tempDir_ / f'{i:04d}.png', res)
 
 def minDistance(f1, f2):
     # Both frames are guaranteed to have only 1 pixel.
