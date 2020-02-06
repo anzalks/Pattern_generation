@@ -39,7 +39,7 @@ def showFrame(pixel, i, delay=1):
     #    interpolation=cv2.INTER_CUBIC)
     cv2.imshow('window', res)
     cv2.waitKey(delay)
-    imageio.imwrite(tempDir_ / f'{i:04d}.png', res.astype(np.uint8))
+    imageio.imwrite(tempDir_ / f'{i:04d}.png', res)
 
 def minDistance(f1, f2):
     # Both frames are guaranteed to have only 1 pixel.
@@ -65,7 +65,7 @@ def main():
         nIter += 1
         i, j = random.choice(allowedIndex)
         # If i is in top or bottom margin; ignore the pixel.
-        if i < marginSize_ or i > H_ - marginSize_:
+        if i < marginSize_ or i >= H_ - marginSize_:
             allowedIndex.remove((i,j))
             continue
         badIndex = False
