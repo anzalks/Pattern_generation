@@ -13,13 +13,10 @@ from pathlib import Path
 import tifffile
 import numpy as np
 
-W_, H_ = 25, 25
+W_, H_ = 20, 24
 summary_ = np.zeros((H_,W_))
 frames_ = []
-constraintWindowSize_ = 5
-
-# Add header and footer where pixel is not allowed.
-marginSize_ = 5
+constraintWindowSize_ = 20
 
 tempDir_ = Path('_figures')
 tempDir_.mkdir(parents=True, exist_ok=True)
@@ -39,7 +36,7 @@ def showFrame(pixel, i, delay=1):
     #    interpolation=cv2.INTER_CUBIC)
     cv2.imshow('window', res)
     cv2.waitKey(delay)
-    imageio.imwrite(tempDir_ / f'{i:04d}.png', res.astype(np.uint8))
+    imageio.imwrite(tempDir_ / f'{i:04d}.png', res)
 
 def minDistance(f1, f2):
     # Both frames are guaranteed to have only 1 pixel.
@@ -64,10 +61,6 @@ def main():
     while allowedIndex and iterWithoutChange < 500:
         nIter += 1
         i, j = random.choice(allowedIndex)
-        # If i is in top or bottom margin; ignore the pixel.
-        if i < marginSize_ or i > H_ - marginSize_:
-            allowedIndex.remove((i,j))
-            continue
         badIndex = False
         for (x2,y2) in frames_[-constraintWindowSize_:]:
             d = minDistance((i, j), (x2,y2))
@@ -85,12 +78,12 @@ def main():
             iterWithoutChange += 1
 
     # Write them to a tiff file.
-    outfile = 'single_pixel.tif'
+    outfile = 'single_pixel.tiff'
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
         for i, j in frames_:
             frame = np.zeros_like(summary_)
             frame[i, j] = 255
-            tif.save(frame.astype(np.uint8))
+            tif.save(np.uint8(frame))
     print( f"[INFO ] Saved to {outfile}" )
 
 
