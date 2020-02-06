@@ -65,7 +65,7 @@ def main():
         nIter += 1
         i, j = random.choice(allowedIndex)
         # If i is in top or bottom margin; ignore the pixel.
-        if i < marginSize_ or i >= H_ - marginSize_:
+        if i < marginSize_ or i >= (H_ - marginSize_):
             allowedIndex.remove((i,j))
             continue
         badIndex = False
@@ -85,6 +85,8 @@ def main():
             iterWithoutChange += 1
 
     # Write them to a tiff file.
+    showFrame((i,j), nIter)
+
     outfile = 'single_pixel.tif'
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
         for i, j in frames_:
