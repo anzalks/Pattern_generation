@@ -13,10 +13,13 @@ from pathlib import Path
 import tifffile
 import numpy as np
 
-W_, H_ = 20, 24
+W_, H_ = 25, 25
 summary_ = np.zeros((H_,W_))
 frames_ = []
-constraintWindowSize_ = 20
+constraintWindowSize_ = 5
+
+# Add header and footer where pixel is not allowed.
+marginSize_ = 5
 
 tempDir_ = Path('_figures')
 tempDir_.mkdir(parents=True, exist_ok=True)
@@ -61,6 +64,10 @@ def main():
     while allowedIndex and iterWithoutChange < 500:
         nIter += 1
         i, j = random.choice(allowedIndex)
+        # If i is in top or bottom margin; ignore the pixel.
+        if i < marginSize_ or i > H_ - marginSize_:
+            allowedIndex.remove((i,j))
+            continue
         badIndex = False
         for (x2,y2) in frames_[-constraintWindowSize_:]:
             d = minDistance((i, j), (x2,y2))
