@@ -39,7 +39,7 @@ def showFrame(pixel, i, delay=1):
     #    interpolation=cv2.INTER_CUBIC)
     cv2.imshow('window', res)
     cv2.waitKey(delay)
-    imageio.imwrite(tempDir_ / f'{i:04d}.png', res)
+    imageio.imwrite(tempDir_ / f'{i:04d}.png', res.astype(np.uint8))
 
 def minDistance(f1, f2):
     # Both frames are guaranteed to have only 1 pixel.
@@ -85,12 +85,12 @@ def main():
             iterWithoutChange += 1
 
     # Write them to a tiff file.
-    outfile = 'single_pixel.tiff'
+    outfile = 'single_pixel.tif'
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
         for i, j in frames_:
             frame = np.zeros_like(summary_)
             frame[i, j] = 255
-            tif.save(np.uint8(frame))
+            tif.save(frame.astype(np.uint8))
     print( f"[INFO ] Saved to {outfile}" )
 
 
