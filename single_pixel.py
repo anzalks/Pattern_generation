@@ -55,8 +55,6 @@ def main():
     i, j = genRandom()
     allowedIndex = list(itertools.product(range(H_), range(W_)))
     random.shuffle(allowedIndex)
-    i, j = allowedIndex.pop()
-    frames_.append((i,j))
 
     iterWithoutChange = 0
     nGoodFrame = 0
