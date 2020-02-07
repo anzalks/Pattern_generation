@@ -13,7 +13,7 @@ from pathlib import Path
 import tifffile
 import numpy as np
 
-W_, H_ = 20, 24
+W_, H_ = 24, 24
 summary_ = np.zeros((H_,W_))
 frames_ = []
 constraintWindowSize_ = 20
@@ -58,9 +58,13 @@ def main():
 
     iterWithoutChange = 0
     nIter = 0
-    while allowedIndex and iterWithoutChange < 500:
+    while allowedIndex and iterWithoutChange < 700:
         nIter += 1
         i, j = random.choice(allowedIndex)
+        # If i is in top or bottom margin; ignore the pixel.
+        if i < marginSize_ or i >= (H_ - marginSize_):
+            allowedIndex.remove((i,j))
+            continue
         badIndex = False
         for (x2,y2) in frames_[-constraintWindowSize_:]:
             d = minDistance((i, j), (x2,y2))
@@ -78,6 +82,7 @@ def main():
             iterWithoutChange += 1
 
     # Write them to a tiff file.
+    showFrame((i,j), nIter)
     outfile = 'single_pixel.tiff'
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
         for i, j in frames_:

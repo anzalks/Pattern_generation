@@ -19,6 +19,9 @@ gif : $(OUTFILE)
 single : single_pixel.tiff
 	./tiff_to_pngs.sh $<
 
+gif_single : single_pixel.tiff
+	convert $< -filter box -resize 2000% $ ./single_gif.gif
+
 ./single_pixel.tiff: ./single_pixel.py
 	$(PY) $<
 
