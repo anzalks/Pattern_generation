@@ -16,7 +16,9 @@ import numpy as np
 W_, H_ = 24, 24
 summary_ = np.zeros((H_,W_))
 frames_ = []
-constraintWindowSize_ = 20
+constraintWindowSize_ = 10
+
+marginSize_ = 5
 
 tempDir_ = Path('_figures')
 tempDir_.mkdir(parents=True, exist_ok=True)
@@ -57,9 +59,10 @@ def main():
     frames_.append((i,j))
 
     iterWithoutChange = 0
-    nIter = 0
+    nGoodFrame = 0
+    # Pick every 2nd frame.
+    everyN = 2
     while allowedIndex and iterWithoutChange < 700:
-        nIter += 1
         i, j = random.choice(allowedIndex)
         # If i is in top or bottom margin; ignore the pixel.
         if i < marginSize_ or i >= (H_ - marginSize_):
@@ -74,15 +77,21 @@ def main():
                 break
 
         if not badIndex:
-            frames_.append((i,j))
+            nGoodFrame += 1
+            # Comment these lines out if every frame is needed.
             allowedIndex.remove((i,j))
-            showFrame((i,j), nIter)
-            iterWithoutChange = 0
+            if nGoodFrame % everyN == 0:
+                frames_.append((i,j))
+                print(nGoodFrame, everyN)
+                showFrame((i,j), nGoodFrame)
+                iterWithoutChange = 0
+            else:
+                pass
         else:
             iterWithoutChange += 1
 
     # Write them to a tiff file.
-    showFrame((i,j), nIter)
+    showFrame((i,j), nGoodFrame)
     outfile = 'single_pixel.tiff'
     with tifffile.TiffWriter(outfile, imagej=True) as tif:
         for i, j in frames_:
