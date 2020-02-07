@@ -75,7 +75,6 @@ def main():
                 break
 
         if not badIndex:
-            nGoodFrame += 1
             # Comment these lines out if every frame is needed.
             allowedIndex.remove((i,j))
             if nGoodFrame % everyN == 0:
@@ -83,8 +82,7 @@ def main():
                 print(nGoodFrame, everyN)
                 showFrame((i,j), nGoodFrame)
                 iterWithoutChange = 0
-            else:
-                pass
+            nGoodFrame += 1
         else:
             iterWithoutChange += 1
 
